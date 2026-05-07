@@ -141,7 +141,7 @@ class LoginScreen extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const RegisterScreen(),
+                        builder: (context) =>  RegisterScreen(),
                       ),
                     );
                   },
@@ -417,7 +417,12 @@ class HomeScreen extends StatelessWidget {
 
 // REGISTER SCREEN
 class RegisterScreen extends StatelessWidget {
-  const RegisterScreen({super.key});
+  RegisterScreen({super.key});
+
+  final TextEditingController userController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
 
   static const Color orangeColor = Color(0xFFFF6200);
 
@@ -425,24 +430,150 @@ class RegisterScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF0F0F0),
-
       appBar: AppBar(
         backgroundColor: orangeColor,
-
         title: const Text(
           'Registro',
           style: TextStyle(color: Colors.white),
         ),
       ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(30),
+          child: Column(
+            children: [
+              const SizedBox(height: 40),
 
-      body: const Center(
-        child: Text(
-          'Pantalla de Registro',
+              const Icon(
+                Icons.person_add,
+                size: 90,
+                color: orangeColor,
+              ),
 
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
+              const SizedBox(height: 20),
+
+              const Text(
+                'Crear cuenta',
+                style: TextStyle(
+                  fontSize: 34,
+                  fontWeight: FontWeight.bold,
+                  color: orangeColor,
+                ),
+              ),
+
+              const SizedBox(height: 40),
+
+              TextField(
+                controller: userController,
+                decoration: inputDecoration(
+                  hintText: 'Usuario',
+                  icon: Icons.person,
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              TextField(
+                controller: passwordController,
+                obscureText: true,
+                decoration: inputDecoration(
+                  hintText: 'Contraseña',
+                  icon: Icons.lock,
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              TextField(
+                controller: confirmPasswordController,
+                obscureText: true,
+                decoration: inputDecoration(
+                  hintText: 'Confirmar contraseña',
+                  icon: Icons.lock_outline,
+                ),
+              ),
+
+              const SizedBox(height: 35),
+
+              SizedBox(
+                width: double.infinity,
+                height: 60,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: orangeColor,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                  ),
+                  onPressed: () {
+                    if (userController.text.isEmpty ||
+                        passwordController.text.isEmpty ||
+                        confirmPasswordController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Llena todos los campos'),
+                        ),
+                      );
+                      return;
+                    }
+
+                    if (passwordController.text !=
+                        confirmPasswordController.text) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Las contraseñas no coinciden'),
+                        ),
+                      );
+                      return;
+                    }
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Cuenta registrada correctamente'),
+                      ),
+                    );
+
+                    Navigator.pop(context);
+                  },
+                  child: const Text(
+                    'Registrarse',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
+        ),
+      ),
+    );
+  }
+
+  InputDecoration inputDecoration({
+    required String hintText,
+    required IconData icon,
+  }) {
+    return InputDecoration(
+      hintText: hintText,
+      hintStyle: const TextStyle(color: orangeColor),
+      prefixIcon: Icon(icon, color: orangeColor),
+      filled: true,
+      fillColor: Colors.transparent,
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(18),
+        borderSide: const BorderSide(
+          color: orangeColor,
+          width: 2,
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(18),
+        borderSide: const BorderSide(
+          color: orangeColor,
+          width: 2,
         ),
       ),
     );
