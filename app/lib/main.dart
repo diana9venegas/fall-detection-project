@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'firebase_options.dart';
 import 'services/user_data_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const FallDetectionApp());
 }
 
@@ -42,17 +49,13 @@ class LoginScreen extends StatelessWidget {
                 const Text(
                   'Seguridad en cada paso',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 34,
-                    fontWeight: FontWeight.bold,
-                    color: orangeColor,
-                  ),
+                  style: TextStyle(fontSize: 34, fontWeight: FontWeight.bold, color: orangeColor),
                 ),
                 const SizedBox(height: 35),
                 TextField(
                   controller: nameController,
                   style: const TextStyle(color: orangeColor, fontSize: 18),
-                  decoration: _inputDecoration(hintText: 'Usuario', icon: Icons.person),
+                  decoration: _inputDecoration(hintText: 'Correo', icon: Icons.email),
                 ),
                 const SizedBox(height: 20),
                 TextField(
@@ -71,8 +74,16 @@ class LoginScreen extends StatelessWidget {
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
                     ),
-                    onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+                    onPressed: () async {
+                      try {
+                        await FirebaseAuth.instance.signInWithEmailAndPassword(
+                          email: nameController.text.trim(),
+                          password: passwordController.text.trim(),
+                        );
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+                      }
                     },
                     child: const Text('Login', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
                   ),
@@ -100,14 +111,8 @@ class LoginScreen extends StatelessWidget {
       prefixIcon: Icon(icon, color: orangeColor),
       filled: true,
       fillColor: Colors.transparent,
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(18),
-        borderSide: const BorderSide(color: orangeColor, width: 2),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(18),
-        borderSide: const BorderSide(color: orangeColor, width: 2),
-      ),
+      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: const BorderSide(color: orangeColor, width: 2)),
+      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: const BorderSide(color: orangeColor, width: 2)),
     );
   }
 }
@@ -197,7 +202,10 @@ class HomeScreen extends StatelessWidget {
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
                 ),
-                onPressed: () => Navigator.pop(context),
+                onPressed: () async {
+                  await FirebaseAuth.instance.signOut();
+                  Navigator.pop(context);
+                },
                 child: const Text('Cerrar sesión', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               ),
             ),
@@ -237,7 +245,7 @@ class RegisterScreen extends StatelessWidget {
               const SizedBox(height: 40),
               TextField(
                 controller: userController,
-                decoration: _inputDecoration(hintText: 'Usuario', icon: Icons.person),
+                decoration: _inputDecoration(hintText: 'Correo', icon: Icons.email),
               ),
               const SizedBox(height: 20),
               TextField(
@@ -261,7 +269,7 @@ class RegisterScreen extends StatelessWidget {
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
                   ),
-                  onPressed: () {
+                  onPressed: () async {
                     if (userController.text.isEmpty || passwordController.text.isEmpty || confirmPasswordController.text.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Llena todos los campos')));
                       return;
@@ -270,8 +278,16 @@ class RegisterScreen extends StatelessWidget {
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Las contraseñas no coinciden')));
                       return;
                     }
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cuenta registrada correctamente')));
-                    Navigator.pop(context);
+                    try {
+                      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                        email: userController.text.trim(),
+                        password: passwordController.text.trim(),
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cuenta creada correctamente')));
+                      Navigator.pop(context);
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+                    }
                   },
                   child: const Text('Registrarse', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                 ),
@@ -290,14 +306,8 @@ class RegisterScreen extends StatelessWidget {
       prefixIcon: Icon(icon, color: orangeColor),
       filled: true,
       fillColor: Colors.transparent,
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(18),
-        borderSide: const BorderSide(color: orangeColor, width: 2),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(18),
-        borderSide: const BorderSide(color: orangeColor, width: 2),
-      ),
+      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: const BorderSide(color: orangeColor, width: 2)),
+      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: const BorderSide(color: orangeColor, width: 2)),
     );
   }
 }
@@ -361,14 +371,8 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
               decoration: InputDecoration(
                 hintText: 'Ingresa el número',
                 prefixIcon: const Icon(Icons.phone, color: orangeColor),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(18),
-                  borderSide: const BorderSide(color: orangeColor, width: 2),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(18),
-                  borderSide: const BorderSide(color: orangeColor, width: 2),
-                ),
+                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: const BorderSide(color: orangeColor, width: 2)),
+                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: const BorderSide(color: orangeColor, width: 2)),
               ),
             ),
             const SizedBox(height: 20),
