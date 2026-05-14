@@ -15,9 +15,9 @@ dependencies:
   
   # Herramientas de Diana (Base de datos y Almacenamiento)
   shared_preferences: ^2.5.5
-  firebase_core: ^4.7.0
-  firebase_auth: ^6.4.0
-  cloud_firestore: ^6.3.0
+  firebase_core: ^4.9.0
+  firebase_auth: ^6.5.1
+  cloud_firestore: ^6.4.1
 
   # Herramientas de Nahomi (Bluetooth)
   flutter_blue_plus: ^1.31.0
